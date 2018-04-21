@@ -17,7 +17,7 @@ function getInstance (_instanceName = 'default') {
 
     if (_instance === null) {
         throw new Error(
-            `'Tried to get a database instance before creating it -> ${_instanceName}`
+            `Tried to get a database instance before creating it -> ${_instanceName}`
         );
     }
 

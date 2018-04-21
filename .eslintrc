@@ -1,0 +1,14 @@
+{
+    "extends": "standard",
+    "rules": {
+        "semi": ["error", "always"],
+        "indent": ["error", 4]
+    },
+    "globals": {
+        "jest": true,
+        "beforeEach": true,
+        "describe": true,
+        "test": true,
+        "expect": true
+    }
+}

@@ -61,6 +61,7 @@ const VALID_ASSOCIATION_TYPES = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMan
 
 class DatabaseWrapper {
     constructor (_dbConfig) {
+        this.synchronized = false;
         this.config = _.defaultsDeep({}, _dbConfig, DEFAULT_DB_CONFIG);
         this.sequelize = new Sequelize(this.config.database, this.config.username, this.config.password, {
             host: this.config.host,

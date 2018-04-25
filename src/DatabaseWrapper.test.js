@@ -2,10 +2,15 @@
 
 const Sequelize = require('sequelize');
 const DatabaseWrapper = require('./DatabaseWrapper');
+const Validator = require('./Validator');
 
 jest.mock('sequelize');
 
 beforeEach(() => {
+    jest.spyOn(Validator, 'testRegExp');
+});
+
+afterEach(() => {
     jest.clearAllMocks();
 });
 
@@ -27,5 +32,18 @@ describe('constructor(_config)', () => {
             operatorsAliases: _instance.OPERATORS_ALIASES,
             pool: _instance.config.pool
         });
+    });
+});
+
+describe('registerModel (_modelNamePath, _modelDefinitionGenerator)', () => {
+    test('validates the model name path', () => {
+        const _instance = new DatabaseWrapper();
+
+        _instance.registerModel('foo', () => { return 'bar'; });
+
+        expect(Validator.testRegExp).toHaveBeenCalledTimes(1);
+        expect(Validator.testRegExp.mock.calls[0][0]).toEqual('VALID_MODEL_NAME_PATH');
+        expect(Validator.testRegExp.mock.calls[0][1]).toEqual(_instance.VALID_MODEL_NAME_PATH);
+        expect(Validator.testRegExp.mock.calls[0][2]).toEqual('foo');
     });
 });

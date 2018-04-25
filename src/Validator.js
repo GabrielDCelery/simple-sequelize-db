@@ -2,7 +2,7 @@
 
 class Validator {
     static _sendValidationResults (_nameOfTest, _value, _bValid) {
-        if (_bValid) {
+        if (_bValid === true) {
             return _value;
         }
 

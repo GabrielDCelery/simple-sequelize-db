@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const Sequelize = require('Sequelize');
+const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const Validator = require('./Validator');
 
@@ -72,7 +72,7 @@ class DatabaseWrapper {
         this.models = {};
     }
 
-    registerModel (_modelDefinition, _modelName, _nameSpace) {
+    registerModel (_modelDefinitionGenerator, _modelName, _nameSpace) {
         Validator.testRegExp('VALID_MODEL_NAME', VALID_MODEL_NAME, _modelName);
 
         if (_nameSpace !== undefined) {
@@ -85,11 +85,11 @@ class DatabaseWrapper {
             throw new Error(`Tried to register model twice -> ${_modelName}`);
         }
 
-        if (!_.isFunction(_modelDefinition)) {
-            throw new Error(`Model definition for ${_modelName} must be a function!`);
+        if (!_.isFunction(_modelDefinitionGenerator)) {
+            throw new Error(`Model definition generator for ${_modelName} must be a function!`);
         }
 
-        const _model = this.sequelize.define(_modelName, _modelDefinition(Sequelize));
+        const _model = this.sequelize.define(_modelName, _modelDefinitionGenerator(Sequelize));
 
         _.set(this.models, _path, _model);
 

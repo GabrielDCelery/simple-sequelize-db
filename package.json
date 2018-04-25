@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.5",
+    "mysql2": "^1.5.3",
     "sequelize": "^4.37.6"
   }
 }

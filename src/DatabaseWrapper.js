@@ -55,12 +55,17 @@ const DEFAULT_DB_CONFIG = {
     }
 };
 
-const VALID_MODEL_NAME_PATH = new RegExp(/^[A-Za-z]+(\.[A-Za-z]+)*$/);
+const VALID_MODEL_NAME_PATH = new RegExp(/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*$/);
 const VALID_ASSOCIATION_TYPES = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany'];
 
 class DatabaseWrapper {
     constructor (_dbConfig) {
+        this.VALID_MODEL_NAME_PATH = VALID_MODEL_NAME_PATH;
+        this.VALID_ASSOCIATION_TYPES = VALID_ASSOCIATION_TYPES;
+        this.DEFAULT_DB_CONFIG = DEFAULT_DB_CONFIG;
+        this.OPERATORS_ALIASES = OPERATORS_ALIASES;
         this.synchronized = false;
+        this.models = {};
         this.config = _.defaultsDeep({}, _dbConfig, DEFAULT_DB_CONFIG);
         this.sequelize = new Sequelize(this.config.database, this.config.username, this.config.password, {
             host: this.config.host,
@@ -68,11 +73,10 @@ class DatabaseWrapper {
             operatorsAliases: OPERATORS_ALIASES,
             pool: this.config.pool
         });
-        this.models = {};
     }
 
     registerModel (_modelNamePath, _modelDefinitionGenerator) {
-        Validator.testRegExp('VALID_MODEL_NAME_PATH', VALID_MODEL_NAME_PATH, _modelNamePath);
+        Validator.testRegExp('VALID_MODEL_NAME_PATH', this.VALID_MODEL_NAME_PATH, _modelNamePath);
 
         if (_.get(this.models, _modelNamePath) !== undefined) {
             throw new Error(`Tried to register model twice -> ${_modelNamePath}`);
@@ -101,7 +105,7 @@ class DatabaseWrapper {
     }
 
     registerModelAssociation (_sourceModelNamePath, _associationType, _targetModelNamePath, _config) {
-        Validator.isValidValue('VALID_ASSOCIATION_TYPES', VALID_ASSOCIATION_TYPES, _associationType);
+        Validator.isValidValue('VALID_ASSOCIATION_TYPES', this.VALID_ASSOCIATION_TYPES, _associationType);
 
         const _sourceModel = this.getModel(_sourceModelNamePath);
         const _targetModel = this.getModel(_targetModelNamePath);

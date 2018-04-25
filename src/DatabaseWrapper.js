@@ -55,8 +55,7 @@ const DEFAULT_DB_CONFIG = {
     }
 };
 
-const VALID_MODEL_NAME = new RegExp(/^[A-Za-z]+$/);
-const VALID_NAMESPACE = new RegExp(/^[A-Za-z]+(\.[A-Za-z]+)*$/);
+const VALID_MODEL_NAME_PATH = new RegExp(/^[A-Za-z]+(\.[A-Za-z]+)*$/);
 const VALID_ASSOCIATION_TYPES = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany'];
 
 class DatabaseWrapper {
@@ -72,46 +71,40 @@ class DatabaseWrapper {
         this.models = {};
     }
 
-    registerModel (_modelDefinitionGenerator, _modelName, _nameSpace) {
-        Validator.testRegExp('VALID_MODEL_NAME', VALID_MODEL_NAME, _modelName);
+    registerModel (_modelNamePath, _modelDefinitionGenerator) {
+        Validator.testRegExp('VALID_MODEL_NAME_PATH', VALID_MODEL_NAME_PATH, _modelNamePath);
 
-        if (_nameSpace !== undefined) {
-            Validator.testRegExp('VALID_NAMESPACE', VALID_NAMESPACE, _nameSpace);
-        }
-
-        const _path = DatabaseWrapper._createModelNodePath(_modelName, _nameSpace);
-
-        if (!_.isNil(_.get(this.models, _modelName))) {
-            throw new Error(`Tried to register model twice -> ${_modelName}`);
+        if (_.get(this.models, _modelNamePath) !== undefined) {
+            throw new Error(`Tried to register model twice -> ${_modelNamePath}`);
         }
 
         if (!_.isFunction(_modelDefinitionGenerator)) {
-            throw new Error(`Model definition generator for ${_modelName} must be a function!`);
+            throw new Error(`Model definition generator for ${_modelNamePath} must be a function!`);
         }
 
+        const _modelName = _.last(_.split(_modelNamePath, '.'));
         const _model = this.sequelize.define(_modelName, _modelDefinitionGenerator(Sequelize));
 
-        _.set(this.models, _path, _model);
+        _.set(this.models, _modelNamePath, _model);
 
         return _model;
     }
 
-    getModel (_modelName, _nameSpace) {
-        const _path = DatabaseWrapper._createModelNodePath(_modelName, _nameSpace);
-        const _model = _.get(this.models, _path, null);
+    getModel (_modelNamePath, _nameSpace) {
+        const _model = _.get(this.models, _modelNamePath, null);
 
         if (_model === null) {
-            throw new Error(`Model does not exist -> ${_modelName}`);
+            throw new Error(`Model does not exist -> ${_modelNamePath}`);
         }
 
         return _model;
     }
 
-    registerModelAssociation (_associationType, _sourceModelName, _targetModelName, _config) {
+    registerModelAssociation (_sourceModelNamePath, _associationType, _targetModelNamePath, _config) {
         Validator.isValidValue('VALID_ASSOCIATION_TYPES', VALID_ASSOCIATION_TYPES, _associationType);
 
-        const _sourceModel = this.getModel(_sourceModelName);
-        const _targetModel = this.getModel(_targetModelName);
+        const _sourceModel = this.getModel(_sourceModelNamePath);
+        const _targetModel = this.getModel(_targetModelNamePath);
 
         return _sourceModel[_associationType](_targetModel, _config);
     }
@@ -131,14 +124,6 @@ class DatabaseWrapper {
         this.synchronized = true;
 
         return true;
-    }
-
-    static _createModelNodePath (_modelName, _nameSpace) {
-        if (_nameSpace === undefined) {
-            return _modelName;
-        }
-
-        return `${_nameSpace}.${_modelName}`;
     }
 }
 

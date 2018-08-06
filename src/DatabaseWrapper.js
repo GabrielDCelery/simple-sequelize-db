@@ -77,7 +77,7 @@ class DatabaseWrapper {
         }
 
         if (!_.isFunction(_modelDefinitionGenerator)) {
-            throw new Error(`Model definition generator for ${_modelName} must be a function!`);
+            throw new Error(`Model definition generator for ${_modelName} must be a function`);
         }
 
         this.models[_modelName] = this.sequelize.define(_modelName, _modelDefinitionGenerator(Sequelize), _modelConfiguration || {});
@@ -95,7 +95,7 @@ class DatabaseWrapper {
 
     registerModelAssociation (_sourceModelNamePath, _associationType, _targetModelNamePath, _config) {
         if (VALID_MODEL_ASSOCIATION_TYPES.indexOf(_associationType) === -1) {
-            throw new Error(`Invalid association type -> ${_associationType}!`);
+            throw new Error(`Invalid association type -> ${_associationType}`);
         }
 
         const _sourceModel = this.getModel(_sourceModelNamePath);

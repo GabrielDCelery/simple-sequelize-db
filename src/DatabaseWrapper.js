@@ -55,13 +55,8 @@ const DEFAULT_DB_CONFIG = {
     }
 };
 
-const VALID_MODEL_NAME_PATH = new RegExp(/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*$/);
-const VALID_ASSOCIATION_TYPES = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany'];
-
 class DatabaseWrapper {
     constructor (_dbConfig) {
-        this.VALID_MODEL_NAME_PATH = VALID_MODEL_NAME_PATH;
-        this.VALID_ASSOCIATION_TYPES = VALID_ASSOCIATION_TYPES;
         this.DEFAULT_DB_CONFIG = DEFAULT_DB_CONFIG;
         this.OPERATORS_ALIASES = OPERATORS_ALIASES;
         this.synchronized = false;
@@ -75,21 +70,20 @@ class DatabaseWrapper {
         });
     }
 
-    registerModel (_modelNamePath, _modelDefinitionGenerator) {
-        Validator.testRegExp('VALID_MODEL_NAME_PATH', this.VALID_MODEL_NAME_PATH, _modelNamePath);
+    registerModel (_modelName, _modelDefinitionGenerator, _modelConfiguration) {
+        //Validator.testRegExp('VALID_MODEL_NAME_PATH', this.VALID_MODEL_NAME_PATH, _modelNamePath);
 
-        if (_.get(this.models, _modelNamePath) !== undefined) {
-            throw new Error(`Tried to register model twice -> ${_modelNamePath}`);
+        if (_.get(this.models, _modelName) !== undefined) {
+            throw new Error(`Tried to register model twice -> ${_modelName}`);
         }
 
         if (!_.isFunction(_modelDefinitionGenerator)) {
-            throw new Error(`Model definition generator for ${_modelNamePath} must be a function!`);
+            throw new Error(`Model definition generator for ${_modelName} must be a function!`);
         }
 
-        const _modelName = _.last(_.split(_modelNamePath, '.'));
         const _model = this.sequelize.define(_modelName, _modelDefinitionGenerator(Sequelize));
 
-        _.set(this.models, _modelNamePath, _model);
+        _.set(this.models, _modelName, _model);
 
         return _model;
     }
@@ -105,7 +99,7 @@ class DatabaseWrapper {
     }
 
     registerModelAssociation (_sourceModelNamePath, _associationType, _targetModelNamePath, _config) {
-        Validator.isValidValue('VALID_ASSOCIATION_TYPES', this.VALID_ASSOCIATION_TYPES, _associationType);
+        //Validator.isValidValue('VALID_ASSOCIATION_TYPES', this.VALID_ASSOCIATION_TYPES, _associationType);
 
         const _sourceModel = this.getModel(_sourceModelNamePath);
         const _targetModel = this.getModel(_targetModelNamePath);

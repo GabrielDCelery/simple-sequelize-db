@@ -94,8 +94,8 @@ class DatabaseWrapper {
         return _model;
     }
 
-    getModel (_modelNamePath, _nameSpace) {
-        const _model = _.get(this.models, _modelNamePath, null);
+    getModel (_modelNamePath) {
+        const _model = _.get(this.models, _modelNamePath);
 
         if (_model === null) {
             throw new Error(`Model does not exist -> ${_modelNamePath}`);

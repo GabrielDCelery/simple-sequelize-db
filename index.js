@@ -1,3 +1,3 @@
 'use strict';
 
-module.exorts = require('./src/dbInstances');
+module.exports = require('./src/dbInstances');

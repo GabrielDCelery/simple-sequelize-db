@@ -39,7 +39,9 @@ describe('registerModel (_modelNamePath, _modelDefinitionGenerator)', () => {
     test('validates the model name path', () => {
         const _instance = new DatabaseWrapper();
 
-        _instance.registerModel('foo', () => { return 'bar'; });
+        _instance.registerModel('foo', () => {
+            return 'bar';
+        });
 
         expect(Validator.testRegExp).toHaveBeenCalledTimes(1);
         expect(Validator.testRegExp.mock.calls[0][0]).toEqual('VALID_MODEL_NAME_PATH');

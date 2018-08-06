@@ -2,29 +2,36 @@
 
 const _ = require('lodash');
 const DatabaseWrapper = require('./DatabaseWrapper');
-const dbInstances = {};
+const databaseInstances = {};
 
-function createInstance (_instanceName = 'default', _config = {}) {
-    if (!_.isNil(_.get(dbInstances, _instanceName))) {
+function createInstance (_config = {}, _instanceName = 'default') {
+    if (!_.isNil(_.get(databaseInstances, _instanceName))) {
         throw new Error(`Database instance already exists -> ${_instanceName}`);
     }
 
-    return _.set(dbInstances, _instanceName, new DatabaseWrapper(_config));
+    return _.set(databaseInstances, _instanceName, new DatabaseWrapper(_config));
 }
 
 function getInstance (_instanceName = 'default') {
-    const _instance = _.get(dbInstances, _instanceName, null);
+    const _instance = _.get(databaseInstances, _instanceName, null);
 
     if (_instance === null) {
-        throw new Error(
-            `Tried to get a database instance before creating it -> ${_instanceName}`
-        );
+        throw new Error(`Tried to get a database instance before creating it -> ${_instanceName}`);
     }
 
     return _instance;
 }
 
+function deleteInstance (_instanceName = 'default') {
+    if (!_.has(databaseInstances, _instanceName)) {
+        throw new Error(`Tried to delete a non-existent database instance -> ${_instanceName}`);
+    }
+
+    _.set(databaseInstances, _instanceName, null);
+}
+
 module.exports = {
     createInstance: createInstance,
-    getInstance: getInstance
+    getInstance: getInstance,
+    deleteInstance: deleteInstance
 };

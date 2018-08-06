@@ -1,7 +1,7 @@
 'use strict';
 
 class Validator {
-    static _sendValidationResults (_nameOfTest, _value, _bValid) {
+    static _returnValidated (_nameOfTest, _value, _bValid) {
         if (_bValid === true) {
             return _value;
         }
@@ -10,11 +10,11 @@ class Validator {
     }
 
     static testRegExp (_nameOfTest, _regExp, _value) {
-        return Validator._sendValidationResults(_nameOfTest, _value, _regExp.test(_value));
+        return Validator._returnValidated(_nameOfTest, _value, _regExp.test(_value));
     }
 
     static isValidValue (_nameOfTest, _validValues, _value) {
-        return Validator._sendValidationResults(_nameOfTest, _value, _validValues.indexOf(_value) !== -1);
+        return Validator._returnValidated(_nameOfTest, _value, _validValues.indexOf(_value) !== -1);
     }
 }
 

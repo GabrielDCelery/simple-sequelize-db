@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const Validator = require('./Validator');
 
 const OPERATORS_ALIASES = {
     $eq: Op.eq,
@@ -55,6 +54,8 @@ const DEFAULT_DB_CONFIG = {
     }
 };
 
+const VALID_MODEL_ASSOCIATION_TYPES = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany'];
+
 class DatabaseWrapper {
     constructor (_dbConfig) {
         this.DEFAULT_DB_CONFIG = DEFAULT_DB_CONFIG;
@@ -71,9 +72,7 @@ class DatabaseWrapper {
     }
 
     registerModel (_modelName, _modelDefinitionGenerator, _modelConfiguration) {
-        //Validator.testRegExp('VALID_MODEL_NAME_PATH', this.VALID_MODEL_NAME_PATH, _modelNamePath);
-
-        if (_.get(this.models, _modelName) !== undefined) {
+        if (this.models[_modelName]) {
             throw new Error(`Tried to register model twice -> ${_modelName}`);
         }
 
@@ -81,25 +80,23 @@ class DatabaseWrapper {
             throw new Error(`Model definition generator for ${_modelName} must be a function!`);
         }
 
-        const _model = this.sequelize.define(_modelName, _modelDefinitionGenerator(Sequelize));
+        this.models[_modelName] = this.sequelize.define(_modelName, _modelDefinitionGenerator(Sequelize), _modelConfiguration || {});
 
-        _.set(this.models, _modelName, _model);
-
-        return _model;
+        return this.models[_modelName];
     }
 
-    getModel (_modelNamePath) {
-        const _model = _.get(this.models, _modelNamePath);
-
-        if (_model === null) {
-            throw new Error(`Model does not exist -> ${_modelNamePath}`);
+    getModel (_modelName) {
+        if (!this.models[_modelName]) {
+            throw new Error(`Model does not exist -> ${_modelName}`);
         }
 
-        return _model;
+        return this.models[_modelName];
     }
 
     registerModelAssociation (_sourceModelNamePath, _associationType, _targetModelNamePath, _config) {
-        //Validator.isValidValue('VALID_ASSOCIATION_TYPES', this.VALID_ASSOCIATION_TYPES, _associationType);
+        if (VALID_MODEL_ASSOCIATION_TYPES.indexOf(_associationType) === -1) {
+            throw new Error(`Invalid association type -> ${_associationType}!`);
+        }
 
         const _sourceModel = this.getModel(_sourceModelNamePath);
         const _targetModel = this.getModel(_targetModelNamePath);
